@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
+
+@import "tailwindcss";
+
+
+a.active hr {
+  display: block;
+}
+
+* {
+  font-family: Poppins;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+
+@media (max-width: 640px) {
+  a.active {
+    background-color: #6160ac;
+    color: white;
+  }
+}
+
+/* Campo de input do Phone */
+.phone-input-container .flag-dropdown {
+  border: none !important;
+  background: transparent !important;
+  padding-right: 8px !important;
+}
+
+.phone-input-container input {
+  width: 100% !important;
+  padding-left: 40px !important; /* afasta o número da bandeira */
+  border: 1px solid #a5b4fc !important;
+  border-radius: 6px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  color: #374151 !important;
+  font-size: 0.875rem !important;
+}
+
+.star-gold {
+  color: #FFD700; /* Cor dourada */
+}
+
+select, textarea {
+    border: 1px solid #6160ac;
+    outline-color: #6160ac;
+    border-radius: 4px;
+}
+
+
+/* Input do Ebook em Add */
+.ebook-input {
+    border: 1px solid #6160ac;
+    outline-color: #6160ac;
+    border-radius: 4px;
+}
