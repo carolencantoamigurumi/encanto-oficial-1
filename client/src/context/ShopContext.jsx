@@ -1,8 +1,11 @@
 import { createContext, useEffect, useState } from "react";
 import { dummyProducts, dummyUserData, orderProducts } from "../assets/assets";
 import { useAuth, useUser } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axios from 'axios'
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 
 export const ShopContext = createContext()
@@ -15,11 +18,13 @@ const ShopContextProvider = (props) => {
 
     const { user } = useUser()
     const { getToken } = useAuth()
+    const location = useLocation()
     const navigate = useNavigate()
 
     const [ isAdmin, setIsAdmin ] = useState(false)
     const [ isAdminLoading, setIsAdminLoading ] = useState(true);
 
+    const [ products, setProducts ] = useState([])
     const [ search, setSearch ] = useState('')
     const [ showSearch, setShowSearch] = useState(false);
     const [ cartItems, setCartItems ] = useState({})
@@ -27,6 +32,42 @@ const ShopContextProvider = (props) => {
     const [ cupom, setCupom ] = useState(0);                        // cupom guarda o percentual; setCupom atualiza
     const [ favoriteItems, setFavoriteItems ] = useState([]);
 
+
+
+    // --------------------------- Função para verificar se o usuário é Admin ---------------------------
+    const fetchIsAdmin = async () => {
+        try {
+            const { data } = await axios.get('/api/admin/is-admin', {headers: {Authorization: `Bearer ${await getToken()}`}})
+            setIsAdmin(data.isAdmin)
+
+            if (!data.isAdmin && location.pathname.startsWith('/admin')) {
+                navigate('/')
+                toast.error('Você não possui autorização para acessar o painel de Admin')
+            }
+        } catch (error) {
+            setIsAdmin(false);
+        } finally {
+            setIsAdminLoading(false)
+        }
+    }
+
+
+
+    // --------------------------- Mostrar Ebooks no Site ---------------------------------- 
+    const getProductsData = async () => {
+        try {
+            const { data } = await axios.get('/api/product/list')
+
+            if (data.success) {
+                setProducts(data.products || [])
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }
 
 
 
@@ -38,11 +79,11 @@ const ShopContextProvider = (props) => {
         }
 
         try {
-            // const token = await getToken()
-            // if (token) {
-            //     // Usuário autenticado: envia para backend
-            //     await axios.post('api/cart/add', {itemId}, {headers: {Authorization: `Bearer ${token}`}})
-            // }
+            const token = await getToken()
+            if (token) {
+                // Usuário autenticado: envia para backend
+                await axios.post('/api/cart/add', {itemId}, {headers: {Authorization: `Bearer ${token}`}})
+            }
 
             // Atualiza estado local e salva no localStorage
             let cartData = structuredClone(cartItems)            
@@ -54,7 +95,7 @@ const ShopContextProvider = (props) => {
         } catch (error) {
             console.log(error);
             toast.error("Erro ao adicionar ao carrinho");
-        }        
+        }               
     } 
 
 
@@ -76,31 +117,65 @@ const ShopContextProvider = (props) => {
 
 
     // --------------------------- Remover Itens do Carrinho ----------------------------------
-    const removeFromCart = async (itemId) => {
+    const removeFromCart = async (itemId) => {  
         try {
             let cartData = structuredClone(cartItems);
             delete cartData[itemId];
             setCartItems(cartData);
             localStorage.setItem("cartItems", JSON.stringify(cartData));
-            toast.success('Ebook removido com sucesso!')
+            toast.success('Ebook removido com sucesso!')        
             
-            // const token = await getToken()
-            // if (!token) throw new Error("Usuário não autenticado");
-            
-            // await axios.post('/api/cart/update', {itemId, quantity: 0 }, {headers: {Authorization: `Bearer ${token}`}})
+            const token = await getToken()
 
+            if (!token) throw new Error("Usuário não autenticado");
+
+            await axios.post('/api/cart/update', {itemId, quantity: 0 }, {headers: {Authorization: `Bearer ${token}`}})
         } catch (error) {
             console.log(error);
-            toast.error("Erro ao remover o ebook da sacola");    
+            toast.error("Erro ao remover o ebook da sacola"); 
+        }      
+    }
+
+
+
+    // --------------------------- Obter carrinho do cliente ----------------------------------
+    const getUserCart = async () => {
+        const token = await getToken()
+        if (!token) throw new Error("Usuário não autenticado");
+
+        try {
+            const { data } = await axios.get('/api/cart/get', {headers: {Authorization: `Bearer ${token}`}})
+            if (data.success) {
+                let backendCart = data.cartData || {}
+                let localCart = JSON.parse(localStorage.getItem("cartItems")) || {}
+
+                // Mescla localStorage com backend (prioridade: backend)
+                let mergedCart = { ...localCart, ...backendCart }
+
+                // Atualiza estado e localStorage
+                setCartItems(mergedCart)
+                localStorage.setItem("cartItems", JSON.stringify(mergedCart))
+
+                // Envia pro backend os itens que só estavam offline
+                for (const [itemId, qty] of Object.entries(localCart)) {
+                    if (!backendCart[itemId]) {
+                        await axios.post('/api/cart/add', { itemId, quantity: qty }, {headers: {Authorization: `Bearer ${token}`}})
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message) 
         }
     }
 
+    
 
 
     // --------------------------- Obter Valor Total do Carrinho ---------------------------------- 
     const getCartAmount = () => {
         return Object.entries(cartItems).reduce((total, [itemId, quantity]) => {
-            const itemInfo = dummyProducts.find(product => product._id === itemId)
+            const itemInfo = products.find(product => product._id === itemId)
             if (itemInfo && quantity > 0) {
                 return total + itemInfo.price * quantity
             }
@@ -129,29 +204,77 @@ const ShopContextProvider = (props) => {
 
 
 
-    // --------------------------- Remover Ebooks Favoritos ---------------------------
-    const removeFromFavorites = (productId) => {
-        setFavoriteItems(prev => {
-            const newFavs = { ...prev }
-            delete newFavs[productId]
-            return newFavs
-        })
+    // --------------------------- alternar (adicionar/remover) Ebooks Favoritos ---------------------------
+    const toggleFavorite = async (productId) => {
+        try {
+            if (!user) return toast.error('Faça o login para adicionar aos favoritos');
+
+            const token = await getToken();
+            const { data } = await axios.post('/api/user/update-favorite', { productId }, { headers: { Authorization: `Bearer ${token}` } });
+
+            if (data.success) {
+                await fetchFavoriteEbooks()  // Atualiza o estado com lista do backend
+                toast.success(data.message);
+            } else {
+                toast.error('Erro ao atualizar favoritos');
+            }
+        } catch (error) {
+            toast.error('Erro ao comunicar com servidor');
+        }        
     }
 
 
-    // --------------------------- Ebooks Favoritos ---------------------------
-    const toggleFavorite = (productId) => {
-        setFavoriteItems(prev => prev[productId] ? (() => {
-            const newFavs = { ...prev }
-            delete newFavs[productId]
-            return newFavs
-        })()
-        : { ...prev, [productId] : true }
-       )
-    }    
+    // --------------------------- Buscar Ebooks Favoritos ---------------------------
+    const fetchFavoriteEbooks = async () => {
+        try {
+            const token = await getToken();
+            const { data } = await axios.get('/api/user/favorites', {headers: {Authorization: `Bearer ${await getToken()}`}})
+
+            // Atualize a partir dos IDs
+            if (data.success) {
+                setFavoriteItems(data.ebooks.map(e => e._id));
+            } else {
+                setFavoriteItems([]);
+                toast.error(data.message)
+            }
+        } catch (error) {
+            setFavoriteItems([]);
+            toast.error('Erro ao buscar favoritos');
+        }
+    }
+
+    
 
 
 
+    // Executa a função para selecionar se o usuário é ou não Admin
+    useEffect(() => {
+        if (user) {
+            fetchIsAdmin()
+            fetchFavoriteEbooks()
+        }
+    },[user])
+
+
+
+    // Executa a função de mostrar os Ebooks no Site
+    useEffect(() => {
+        getProductsData()
+    },[])
+
+
+    // Executa a função de buscar itens no carrinho do cliente
+    useEffect(() => {
+        const savedCart = localStorage.getItem('cartItems')
+        if (savedCart) {
+            setCartItems(JSON.parse(savedCart))
+        }
+    },[])
+
+
+    useEffect(() => {
+        localStorage.setItem('cartItems', JSON.stringify(cartItems))
+    },[cartItems])
     
 
 
@@ -171,12 +294,13 @@ const ShopContextProvider = (props) => {
 
 
     const value = {
-        dummyProducts,
+        products,
         orderProducts,
         dummyUserData,
         currency,
         navigate,
         user,
+        getToken,
         isAdmin,
         isAdminLoading,
         search,
@@ -192,9 +316,12 @@ const ShopContextProvider = (props) => {
         removeFromCart,
         getCartAmount,
         favoriteItems,
-        removeFromFavorites,
         toggleFavorite,
         cupom,
+        axios,
+        fetchIsAdmin,
+        fetchFavoriteEbooks
+
     }
 
     return (

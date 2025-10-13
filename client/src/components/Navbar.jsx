@@ -85,7 +85,7 @@ const Navbar = () => {
                                 <UserButton.Action label='Meus Downloads' labelIcon={<CloudDownload width={17} />} onClick={() => navigate('/downloads')} />
                                 <UserButton.Action label='Ebooks Favoritos' labelIcon={<FileHeart width={17} />} onClick={() => navigate('/favoritos')} />
                                 { isAdmin && (
-                                    <UserButton.Action label='Admin' labelIcon={<UserCog width={17} />} onClick={() => navigate('/admin')} />
+                                    <UserButton.Action label='Administrador' labelIcon={<UserCog width={17} />} onClick={() => navigate('/admin')} />
                                 )}
                             </UserButton.MenuItems>
                         </UserButton>

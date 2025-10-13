@@ -5,22 +5,23 @@ import { ShopContext } from '../context/ShopContext';
 import toast from 'react-hot-toast';
 
 
-const Add = () => {  
-
+const Add = () => {
+  
+  const { axios, getToken } = useContext(ShopContext)
 
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Animais");
-  const [subCategory, setSubCategory] = useState("Diversos");
-  const [discount, setDiscount] = useState(0);
-  const [ebookFile, setEbookFile] = useState(null);
-  const [ebookStatus, setEbookStatus] = useState(null);
+  const [ name, setName ] = useState("");
+  const [ description, setDescription ] = useState("");
+  const [ price, setPrice ] = useState("");
+  const [ category, setCategory ] = useState("Animais");
+  const [ subCategory, setSubCategory ] = useState("Diversos");
+  const [ discount, setDiscount ] = useState(0);
+  const [ ebookFile, setEbookFile ] = useState(null);
+  const [ ebookStatus, setEbookStatus ] = useState(null);
 
 
   const onSubmitHandler = async (e) => {
@@ -47,29 +48,29 @@ const Add = () => {
 
       ebookFile && formData.append("ebookFile", ebookFile);
 
-      // const { data } = await axios.post('/api/product/add', formData, { headers: { Authorization: `Bearer ${await getToken()}`}})
+      const { data } = await axios.post('/api/product/add', formData, { headers: { Authorization: `Bearer ${await getToken()}`}})
 
       // Se o formulário for enviado, ele limpa os campos
-      // if (data.success) {
-      //       toast.success(data.message)
-      //       setName("");
-      //       setDescription("");
-      //       setImage1(false);
-      //       setImage2(false);
-      //       setImage3(false);
-      //       setImage4(false);
-      //       setPrice("");
-      //       setCategory("Animais");
-      //       setSubCategory("Diversos");
-      //       setDiscount(0);
-      //       setEbookFile(null);
-      //       setEbookStatus(null);         
-      //   } else {
-      //       toast.error(data.message);
-      //   }
+      if (data.success) {
+            toast.success(data.message)
+            setName("");
+            setDescription("");
+            setImage1(false);
+            setImage2(false);
+            setImage3(false);
+            setImage4(false);
+            setPrice("");
+            setCategory("Animais");
+            setSubCategory("Diversos");
+            setDiscount(0);
+            setEbookFile(null);
+            setEbookStatus(null);         
+        } else {
+            toast.error(data.message);
+        }
     } catch (error) {
-      // console.log(error);
-      // toast.error(error.message);
+      console.log(error);
+      toast.error(error.message);
     }    
   }
 

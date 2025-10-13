@@ -5,18 +5,18 @@ import ProductCard from './ProductCard'
 
 const RelatedProducts = ({ category, subCategory}) => {
 
-    const { dummyProducts } = useContext(ShopContext)
+    const { products } = useContext(ShopContext)
     const [ related, setRelated ] = useState([])
 
 
     useEffect(() => {
-        if (dummyProducts.length > 0) {
-            let productsCopy = dummyProducts.slice()
+        if (products.length > 0) {
+            let productsCopy = products.slice()
             productsCopy = productsCopy.filter((item) => category === item.category)
             productsCopy = productsCopy.filter((item) => subCategory === item.subCategory)
             setRelated(productsCopy.slice(0,5))
         }
-    },[dummyProducts])
+    },[products])
 
   return (
     <div className='my-24'>

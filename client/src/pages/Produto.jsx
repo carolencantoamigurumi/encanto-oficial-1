@@ -9,7 +9,7 @@ import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 
 const Produto = () => {
 
-  const { dummyProducts, currency, calculateRating, cartItems, addToCart, removeFromCart, navigate, user, favoriteItems, toggleFavorite } = useContext(ShopContext)
+  const { products, currency, calculateRating, cartItems, addToCart, removeFromCart, navigate, user, favoriteItems, toggleFavorite } = useContext(ShopContext)
 
   const { productId } = useParams()  // o productId vem do App.jsx- routes - product
   const [ productData, setProductData ] = useState(false);
@@ -19,7 +19,7 @@ const Produto = () => {
 
     // Buscar Dados do Produto
     const fetchProductData = async () => {
-      const item = dummyProducts.find((item) => item._id === productId)
+      const item = products.find((item) => item._id === productId)
         if (item) {
           setProductData(item)
           setImage(item.image[0])
@@ -30,7 +30,7 @@ const Produto = () => {
     // Exibe o produto pelo Id na página
     useEffect(() => {
         fetchProductData()
-    },[productId, dummyProducts])
+    },[productId, products])
 
 
 
@@ -106,12 +106,17 @@ const Produto = () => {
                     )}                    
             </button>
 
-            {/* Favoritos */}
-            
+            {/* Favoritos */}            
             <button 
               onClick={() => toggleFavorite(productId)}
-              className={`transition cursor-pointer active:scale-95 p-1.5 rounded-full ${favoriteItems[productId] ? 'bg-red-500' : 'bg-indigo-500'}`}>
-              <Heart color='white' fill={favoriteItems[productId] ? 'red' : 'none'} />
+              className={`transition cursor-pointer active:scale-95 p-1.5 rounded-full 
+                        ${favoriteItems.includes(productId) ? "bg-red-500" : "bg-indigo-500"}`}>
+              <Heart
+                className="w-6 h-6"
+                strokeWidth={2}
+                stroke="white"  
+                fill={favoriteItems.includes(productId) ? "white" : "none"}
+              />
             </button>              
 
           </div>                    

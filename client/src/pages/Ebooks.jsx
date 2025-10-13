@@ -8,7 +8,7 @@ import { motion } from 'motion/react'
 
 const Ebooks = () => {
 
-  const { dummyProducts, search, showSearch, calculateRating } = useContext(ShopContext)
+  const { products, search, showSearch, calculateRating } = useContext(ShopContext)
 
   const [showFilter, setShowFilter] = useState(true); // mostrar fitros em smartphones
   const [filterProducts, setFilterProducts] = useState([]);
@@ -39,7 +39,7 @@ const Ebooks = () => {
 
   // Função para filtrar Categoria e SubCategoria ao mesmo tempo + Buscar na Barra de Busca
   const applyFilter = () => {
-      let productsCopy = dummyProducts.slice();
+      let productsCopy = products.slice();
 
       if (showSearch && search) {
         productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
@@ -79,7 +79,7 @@ const Ebooks = () => {
   // Executa os Filtros
   useEffect(() => {
       applyFilter()
-  },[category, subCategory, search, showSearch, dummyProducts])
+  },[category, subCategory, search, showSearch, products])
 
 
 

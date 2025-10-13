@@ -1,15 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { LayoutDashboardIcon, ListCollapseIcon, ListIcon, PlusSquareIcon, SquarePercentIcon, UsersRound } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { ShopContext } from '../context/ShopContext'
 
 const AdminSidebar = () => {
 
-    const user = {
-      firstName: 'Admin',
-      lastName: 'User',
-      imageUrl: assets.profile_icon,
-  }
+  const { user } = useContext(ShopContext)  
 
   const adminNavlinks = [
       { name: 'Dashboard', path: '/admin', icon: LayoutDashboardIcon },
@@ -23,8 +20,8 @@ const AdminSidebar = () => {
 
   return (
     <div className='h-[calc(100vh-64px)] md:flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-indigo-600/40 text-sm'>
-      <img src={user.imageUrl} alt="Imagem do Admin" className='h-9 md:h-14 w-9 md:w-14 rounded-full mx-auto' />
-      <p className='mt-2 text-base max-md:hidden text-center w-full'>{user.firstName} {user.lastName}</p>
+      <img src={user.imageUrl} alt="Imagem do Admin" className='h-9 md:h-20 w-9 md:w-20 rounded-full mx-auto' />
+      <p className='mt-2 text-base text-indigo-700 max-md:hidden text-center w-full'>{user.firstName} {user.lastName}</p>
 
       <div className='w-full'>
         {adminNavlinks.map((link, index) => (

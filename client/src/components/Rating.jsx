@@ -3,11 +3,11 @@ import { ShopContext } from '../context/ShopContext'
 
 const Rating = ({ productId, onRate, interactive = false }) => {    
 
-    const { dummyProducts, calculateRating } = useContext(ShopContext)
+    const { products, calculateRating } = useContext(ShopContext)
     const [ rating, setRating ] = useState(0)
 
     // buscar produto no dummyProducts
-    const product = dummyProducts.find(p => p._id === productId)
+    const product = products.find(p => p._id === productId)
 
 
     useEffect(() => {

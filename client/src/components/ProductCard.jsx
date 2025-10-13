@@ -27,6 +27,7 @@ const ProductCard = ({ id, name, image, price }) => {
             <p className="md:text-xl text-base font-medium text-indigo-500">
                 {currency} {(price.toFixed(2))}
             </p>
+
               <div className="text-indigo-500">                  
                 <button
                     onClick={(e) => {
@@ -54,6 +55,7 @@ const ProductCard = ({ id, name, image, price }) => {
                         )}                    
                 </button>                      
               </div>
+              
           </div>
       </div>
     </div>

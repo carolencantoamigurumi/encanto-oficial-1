@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 const Lista = () => {
 
-  const { dummyProducts, currency } = useContext(ShopContext)
+  const { axios, getToken, currency } = useContext(ShopContext)
 
   const [ list, setList ] = useState([])
   const [ showModal, setShowModal ] = useState(false);
@@ -17,50 +17,59 @@ const Lista = () => {
 
   // ------------------------ Buscar Lista de Produtos ------------------------
   const fetchList = async () => {
-      if (dummyProducts) {
-        setList(dummyProducts)
-      }     
+      try {
+        const { data } = await axios.get('/api/product/list')
+
+        if (data.success) {
+          setList(data.products)
+        } else {
+          toast.error(data.message)
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message)
+      }   
   }
 
 
 
   // ------------------------ Remover Produto ------------------------
-  // const removeProduct = async (id) => {
-  //   if (!window.confirm("Tem certeza que deseja remover este produto?")) 
-  //     return;
-  //   try {      
-  //     const { data } = await axios.post('/api/product/remove', {id}, {headers: {Authorization: `Bearer ${await getToken()}`}})
-  //     if (data.success) {
-  //       toast.success(data.message)
-  //       await fetchList()        
-  //     } else {
-  //       toast.error(data.message || "Erro ao remover produto.")
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(error.message) 
-  //   }
-  // }  
+  const removeProduct = async (id) => {
+    if (!window.confirm("Tem certeza que deseja remover este produto?")) 
+      return;
+    try {      
+      const { data } = await axios.post('/api/product/remove', {productId: id}, {headers: {Authorization: `Bearer ${await getToken()}`}})
+      if (data.success) {
+        toast.success(data.message)
+        await fetchList()        
+      } else {
+        toast.error(data.message || "Erro ao remover produto.")
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message) 
+    }
+  }  
 
 
 
 
   // ------------------------ Editar Produto ------------------------
-  // const editProduct = async (productData) => {
-  //   try {      
-  //     const { data } = await axios.put("/api/product/edit", productData, {headers: { Authorization: `Bearer ${await getToken()}`}});
+  const editProduct = async (productData) => {
+    try {      
+      const { data } = await axios.put("/api/product/edit", productData, {headers: { Authorization: `Bearer ${await getToken()}`}});
 
-  //     if (data.success) {
-  //       toast.success(data.message);
-  //       await fetchList(); // Atualiza a lista
-  //     } else {
-  //       toast.error(data.message);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(error.message);
-  //   }
-  // };
+      if (data.success) {
+        toast.success(data.message);
+        await fetchList(); // Atualiza a lista
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
 
 
   // Função para abrir o Modal de Edição
@@ -91,23 +100,24 @@ const Lista = () => {
     <>
       <AdminTitle text1='EBooks' text2='Cadastrados' />
 
-      <div className='max-w-screen-lg mx-auto flex flex-col gap-3 mt-6'>
+      <div className='max-w-screen-lg mx-auto flex flex-col gap-2 mt-6'>
 
         {/* -------------- Lista dos Produtos ----------------- */}
         {
           list.map((item, index) => (
-            <div key={index} className='grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] justify-items-center items-center gap-x-4 py-1 px-2 border border-indigo-300 text-sm'>
+            <div key={index} className='grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr] justify-items-center items-center gap-x-4 py-1 px-2 border border-indigo-300 text-sm'>
               <img src={item.image?.[0] || assets.placeholder} alt="" className='w-12 h-12 object-cover rounded' />
               <p className='text-center'>{item.name}</p> 
               <p className='text-center'>{item.category}</p>
               <p className='text-center'>{item.subCategory}</p>
               <p className='text-center'>{currency} {item.price.toFixed(2)}</p>
               <p className='text-center'>{item.discount}%</p>
-              <p onClick={() => openEditModal(item)} className="flex justify-center items-center cursor-pointer" aria-label="Editar produto" >
+              <p onClick={() => openEditModal(item)} className="flex justify-center items-center cursor-pointer" aria-label="Editar produto" title="Editar produto" >
                 <ClipboardPen color='#6160ac' />
               </p>
-              <p onClick={() => removeProduct(item._id)} className='flex justify-center items-center cursor-pointer' aria-label="Excluir produto">                
+              <p onClick={() => removeProduct(item._id)} className='flex justify-center items-center cursor-pointer' aria-label="Excluir produto" title="Excluir produto">                
                 <Trash2 color='red' />
+                
               </p>
             </div>
           ))

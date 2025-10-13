@@ -22,8 +22,8 @@ createRoot(document.getElementById('root')).render(
   <ClerkProvider publishableKey={PUBLISHABLE_KEY} localization={ptBR} >
     <BrowserRouter>
       <ShopContextProvider>
-        <MotionConfig viewport={{once: true}}>
-          <App />
+        <MotionConfig viewport={{once: true}}>          
+          <App />          
         </MotionConfig>
       </ShopContextProvider>
     </BrowserRouter>

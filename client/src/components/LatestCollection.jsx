@@ -7,14 +7,14 @@ import { motion } from 'motion/react'
 
 const LatestCollection = () => {
 
-  const { dummyProducts } = useContext(ShopContext)
+  const { products } = useContext(ShopContext)
   const [ latestProducts, setLatestProducts ] = useState([])
 
 
   // Função que irá exibir os últimos 10 Ebooks lançados
     useEffect(() => {
-        setLatestProducts(dummyProducts.slice(0,10))
-    },[dummyProducts])
+        setLatestProducts(products.slice(0,10))
+    },[products])
   
 
   return (

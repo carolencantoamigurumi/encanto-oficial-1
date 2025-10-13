@@ -7,7 +7,6 @@ import Sobre from './pages/Sobre'
 import Contato from './pages/Contato'
 import Produto from './pages/Produto'
 import Carrinho from './pages/Carrinho'
-import FazerPedido from './pages/FazerPedido'
 import Pedidos from './pages/Pedidos'
 import Footer from './components/Footer'
 import { Toaster } from 'react-hot-toast'
@@ -29,20 +28,29 @@ import Favoritos from './pages/Favoritos'
 const App = () => {
 
   const isAdminRoute = useLocation().pathname.startsWith('/admin')
-  const { user, isAdmin, isAdminLoading } = useContext(ShopContext)
+  const { user, isAdmin, isAdminLoading, navigate } = useContext(ShopContext)
 
-  // if (isAdminRoute) {
-  //   if (isAdminLoading) {
-  //     return <Loading />
-  //   }
-  //   if (!user || !isAdmin) {
-  //     return (
-  //       <div className='min-h-screen flex justify-center items-center'>
-  //         <SignIn fallbackRedirectUrl={'/admin'} />
-  //       </div>
-  //     )
-  //   }
-  // }
+  if (isAdminRoute) {
+    if (isAdminLoading) {
+      return (
+        <div className='min-h-screen flex justify-center items-center'>
+          <SignIn fallbackRedirectUrl={'/'} />
+        </div>
+      )        
+    }
+
+    if (!user) {
+      return (
+        <div className='min-h-screen flex justify-center items-center'>
+          <SignIn fallbackRedirectUrl={'/'} />
+        </div>
+      )
+    }
+    if (!isAdmin) {
+      navigate('/')
+      return null
+    }
+  }
 
 
 
@@ -59,21 +67,21 @@ const App = () => {
         <Route path='/contato' element={<Contato/>}/>
         <Route path='/produto/:productId' element={<Produto/>}/>
         <Route path='/carrinho' element={<Carrinho/>}/>
-        <Route path='/fazer-pedido' element={<FazerPedido/>}/>
         <Route path='/pedidos' element={<Pedidos/>}/>
         <Route path='/downloads' element={<Downloads/>}/>
         <Route path='/favoritos' element={<Favoritos/>}/>
 
         {/* Admin Routes */}
-        <Route path='/admin/*' element={<Layout />} >
-          <Route index element={<Dashboard />} />
-          <Route path='add' element={<Add />} />
-          <Route path='lista' element={<Lista />} />
-          <Route path='clientes' element={<Clientes />} />
-          <Route path='vendas' element={<Vendas />} />
-          <Route path='cupons' element={<Cupons />} />
-        </Route>
-
+        {user && isAdmin && (
+          <Route path='/admin/*' element={<Layout />} >
+            <Route index element={<Dashboard />} />
+            <Route path='add' element={<Add />} />
+            <Route path='lista' element={<Lista />} />
+            <Route path='clientes' element={<Clientes />} />
+            <Route path='vendas' element={<Vendas />} />
+            <Route path='cupons' element={<Cupons />} />
+          </Route>
+        )}
       </Routes>  
       {!isAdminRoute && <Footer />}    
     </div>
