@@ -5,7 +5,7 @@ import AdminTitle from './AdminTitle'
 import Title from '../components/Title'
 import { aggregateEbookSalesByDate } from '../utils/aggregateSales'
 import { orderProducts } from '../assets/assets'
-import EbookChart from '../components/charts/ebookChart'
+import EbookChart from '../components/charts/EbookChart'
 
 const Dashboard = () => {
 
