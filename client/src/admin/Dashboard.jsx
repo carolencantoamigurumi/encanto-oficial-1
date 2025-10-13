@@ -5,7 +5,7 @@ import AdminTitle from './AdminTitle'
 import Title from '../components/Title'
 import { aggregateEbookSalesByDate } from '../utils/aggregateSales'
 import { orderProducts } from '../assets/assets'
-import EbookChart from '../components/charts/EbookChart'
+// import EbookChart from '../components/charts/EbookChart'
 
 const Dashboard = () => {
 
@@ -70,7 +70,7 @@ const Dashboard = () => {
         <div className='mt-10'>
           <Title text1={'Gráfico de '} text2={activeCard} />
 
-          <div className='mt-4'>
+          {/* <div className='mt-4'>
             {activeCard === 'Ebooks' && ebookSalesData.length > 0 ? (
               <EbookChart data={ebookSalesData} />
             ) : activeCard === 'Ebooks' ? (
@@ -78,7 +78,7 @@ const Dashboard = () => {
             ) : (
               <p>Gráfico para "{activeCard}" em construção.</p>
             )}
-          </div>
+          </div> */}
         </div>
       )}
     </>
