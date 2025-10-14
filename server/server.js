@@ -21,10 +21,7 @@ await connectCloudinary()
 
 // Middleware
 app.use(express.json())
-app.use(cors({
-    origin: "https://encantooficial-client.vercel.app",
-    credentials: true,
-}))
+app.use(cors())
 app.use(clerkMiddleware())
 
 
